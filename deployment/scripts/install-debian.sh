@@ -21,11 +21,13 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Configurable Ports (Port 3000 is avoided by default)
-FRONTEND_PORT="${FRONTEND_PORT:-3001}"
-AGENT_PORT="${AGENT_PORT:-8000}"
+# Configurable Ports (Dedicated Ports compatibility)
+PUBLIC_PORT="${PUBLIC_PORT:-10646}"     # External public port (Default: Dedicated Port 2 = 10646)
+FRONTEND_PORT="${FRONTEND_PORT:-3001}"  # Internal Next.js port
+AGENT_PORT="${AGENT_PORT:-8000}"        # Internal Agent port
 
 echo -e "Target Configuration:"
+echo -e " - Public Web Port:        ${GREEN}${PUBLIC_PORT}${NC} (Nginx reverse proxy, customizable via PUBLIC_PORT)"
 echo -e " - Frontend Internal Port: ${GREEN}${FRONTEND_PORT}${NC} (Customizable via FRONTEND_PORT env)"
 echo -e " - Backend Agent Port:     ${GREEN}${AGENT_PORT}${NC} (Customizable via AGENT_PORT env)"
 
@@ -112,12 +114,11 @@ fi
 chown -R vps-agent:vps-agent "${INSTALL_DIR}/frontend"
 
 echo -e "\n${BLUE}7. Generating Environment Configuration Files...${NC}"
-# Write frontend environment (Custom Port)
+# Write frontend environment (Runs locally, proxies through Nginx)
 cat << EOF > "${CONFIG_DIR}/frontend.env"
 NODE_ENV=production
 PORT=${FRONTEND_PORT}
 HOSTNAME=127.0.0.1
-NEXT_PUBLIC_API_URL=http://127.0.0.1:${AGENT_PORT}
 EOF
 chmod 0640 "${CONFIG_DIR}/frontend.env"
 chown root:vps-agent "${CONFIG_DIR}/frontend.env"
@@ -126,7 +127,7 @@ chown root:vps-agent "${CONFIG_DIR}/frontend.env"
 cat << EOF > "${CONFIG_DIR}/agent.env"
 AGENT_HOST=127.0.0.1
 AGENT_PORT=${AGENT_PORT}
-ALLOWED_ORIGINS=http://localhost:${FRONTEND_PORT},http://127.0.0.1:${FRONTEND_PORT},http://localhost:3000,http://127.0.0.1:3000
+ALLOWED_ORIGINS=*
 DATABASE_PATH=${INSTALL_DIR}/agent/vps_control.db
 EOF
 chmod 0640 "${CONFIG_DIR}/agent.env"
@@ -179,8 +180,10 @@ systemctl restart vps-frontend.service
 
 echo -e "\n${BLUE}10. Configuring Nginx Reverse Proxy...${NC}"
 if [[ -d "/etc/nginx/sites-available" ]]; then
-    # Generate configured Nginx conf with active ports
+    # Generate configured Nginx conf with active public & internal ports
     sed \
+        -e "s|listen 80;|listen ${PUBLIC_PORT};|g" \
+        -e "s|server_name vps.yourdomain.com;|server_name _;|g" \
         -e "s|http://127.0.0.1:300[01]|http://127.0.0.1:${FRONTEND_PORT}|g" \
         -e "s|http://127.0.0.1:8000|http://127.0.0.1:${AGENT_PORT}|g" \
         "${INSTALL_DIR}/deployment/nginx/vps-control-center.conf" > /etc/nginx/sites-available/vps-control-center.conf
@@ -194,10 +197,9 @@ fi
 echo -e "\n${GREEN}======================================================${NC}"
 echo -e "${GREEN}  INSTALLATION COMPLETE!                              ${NC}"
 echo -e "${GREEN}======================================================${NC}"
-echo -e "Frontend Service:  systemctl status vps-frontend (Port ${FRONTEND_PORT})"
-echo -e "Backend Service:   systemctl status vps-agent (Port ${AGENT_PORT})"
-echo -e "Web Access:        http://<YOUR_VPS_IP>/ (via Nginx reverse proxy)"
-echo -e "Direct Frontend:   http://<YOUR_VPS_IP>:${FRONTEND_PORT}"
+echo -e "Web Access:        http://<YOUR_VPS_IP>:${PUBLIC_PORT}/ (All-in-one via Nginx)"
+echo -e "Frontend Service:  systemctl status vps-frontend (Internal Port ${FRONTEND_PORT})"
+echo -e "Backend Service:   systemctl status vps-agent (Internal Port ${AGENT_PORT})"
 echo -e "Default Login:     admin / admin123"
 echo -e "Allowlist Config:  ${CONFIG_DIR}/service.allowlist"
 echo -e "Environment:       ${CONFIG_DIR}/frontend.env and agent.env"

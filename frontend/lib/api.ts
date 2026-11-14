@@ -13,12 +13,19 @@ import {
 
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
-    // If running in browser and NEXT_PUBLIC_API_URL is set, use it
+    // If explicitly configured, use it
     if (process.env.NEXT_PUBLIC_API_URL) {
       return process.env.NEXT_PUBLIC_API_URL;
     }
-    // Default to port 8000 on the same host
-    return `${window.location.protocol}//${window.location.hostname}:8000`;
+    // In local development without reverse proxy (ports 3000/3001 on localhost)
+    if (
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") &&
+      (window.location.port === "3000" || window.location.port === "3001")
+    ) {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    // In production behind reverse proxy (e.g. Nginx on dedicated port 10646 or 80)
+    return window.location.origin;
   }
   return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 };
