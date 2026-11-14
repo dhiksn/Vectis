@@ -135,12 +135,19 @@ chown root:vps-agent "${CONFIG_DIR}/agent.env"
 
 echo -e "\n${BLUE}8. Installing Privileged Helper and Sudoers Rule...${NC}"
 cp "${INSTALL_DIR}/deployment/scripts/vps-service-helper.sh" /usr/local/bin/vps-service-helper
+sed -i 's/\r$//' /usr/local/bin/vps-service-helper
 chmod 0750 /usr/local/bin/vps-service-helper
 chown root:vps-agent /usr/local/bin/vps-service-helper
 
 cp "${INSTALL_DIR}/deployment/sudoers/010_vps-control-center" /etc/sudoers.d/010_vps-control-center
+sed -i 's/\r$//' /etc/sudoers.d/010_vps-control-center
 chmod 0440 /etc/sudoers.d/010_vps-control-center
 chown root:root /etc/sudoers.d/010_vps-control-center
+
+# Validate sudoers syntax
+if command -v visudo &>/dev/null; then
+    visudo -cf /etc/sudoers.d/010_vps-control-center || echo -e "${RED}[WARNING] Sudoers file syntax check failed${NC}"
+fi
 
 # Copy initial allowlist if not already present
 if [[ ! -f "${CONFIG_DIR}/service.allowlist" ]]; then
@@ -162,6 +169,7 @@ EOF
     chmod 0644 "${CONFIG_DIR}/service.allowlist"
     chown root:vps-agent "${CONFIG_DIR}/service.allowlist"
 fi
+sed -i 's/\r$//' "${CONFIG_DIR}/service.allowlist"
 
 echo -e "\n${BLUE}9. Installing & Starting Systemd Services...${NC}"
 cp "${INSTALL_DIR}/deployment/systemd/vps-agent.service" /etc/systemd/system/

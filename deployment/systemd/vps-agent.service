@@ -15,7 +15,7 @@ RestartSec=3
 LimitNOFILE=65535
 
 # Security Hardening
-ProtectSystem=strict
+ProtectSystem=full
 ProtectHome=read-only
 ReadWritePaths=/opt/vps-control-center /var/log/vps-control-center
 PrivateTmp=true

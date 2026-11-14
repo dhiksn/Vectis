@@ -35,7 +35,7 @@ IS_ALLOWED=0
 
 if [[ -f "$ALLOWLIST_FILE" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
-        line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        line="$(echo "$line" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
         [[ -z "$line" || "$line" =~ ^# ]] && continue
         if [[ "$line" == "$BASE_SERVICE" ]]; then
             IS_ALLOWED=1
@@ -57,4 +57,5 @@ if [[ $IS_ALLOWED -ne 1 ]]; then
 fi
 
 # 4. Safe direct invocation of systemctl
-exec /bin/systemctl "$ACTION" "${BASE_SERVICE}.service"
+SYSTEMCTL_BIN="$(command -v systemctl || echo "/bin/systemctl")"
+exec "$SYSTEMCTL_BIN" "$ACTION" "${BASE_SERVICE}.service"

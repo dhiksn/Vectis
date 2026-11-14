@@ -269,13 +269,14 @@ export const ServicesView: React.FC = () => {
                 <th className="pb-2 font-medium">Service</th>
                 <th className="pb-2 font-medium">Action</th>
                 <th className="pb-2 font-medium">Result</th>
+                <th className="pb-2 font-medium">Details</th>
                 <th className="pb-2 font-medium">IP Address</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-rule text-[11px]">
               {auditLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-4 text-center text-muted">
+                  <td colSpan={7} className="py-4 text-center text-muted">
                     No service audit log records yet.
                   </td>
                 </tr>
@@ -290,6 +291,9 @@ export const ServicesView: React.FC = () => {
                       <span className={log.success ? "text-success" : "text-error"}>
                         {log.success ? "SUCCESS" : "REJECTED/FAILED"}
                       </span>
+                    </td>
+                    <td className="py-2 text-muted max-w-xs truncate" title={log.details || ""}>
+                      {log.details || "-"}
                     </td>
                     <td className="py-2 text-muted">{log.ip_address || "local"}</td>
                   </tr>
