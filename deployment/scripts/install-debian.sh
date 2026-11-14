@@ -72,9 +72,14 @@ mkdir -p "${LOG_DIR}"
 chown -R vps-agent:vps-agent "${LOG_DIR}"
 
 echo -e "\n${BLUE}4. Deploying Application Files to ${INSTALL_DIR}...${NC}"
-cp -ru "${ROOT_DIR}/agent" "${INSTALL_DIR}/"
-cp -ru "${ROOT_DIR}/frontend" "${INSTALL_DIR}/"
-cp -ru "${ROOT_DIR}/deployment" "${INSTALL_DIR}/"
+if [[ "${ROOT_DIR}" != "${INSTALL_DIR}" ]]; then
+    echo -e "Copying files from ${ROOT_DIR} to ${INSTALL_DIR}..."
+    cp -ru "${ROOT_DIR}/agent" "${INSTALL_DIR}/"
+    cp -ru "${ROOT_DIR}/frontend" "${INSTALL_DIR}/"
+    cp -ru "${ROOT_DIR}/deployment" "${INSTALL_DIR}/"
+else
+    echo -e "${GREEN}Running directly inside ${INSTALL_DIR}, skipping copy.${NC}"
+fi
 
 echo -e "\n${BLUE}5. Setting Up Python Virtual Environment...${NC}"
 cd "${INSTALL_DIR}/agent"
@@ -83,6 +88,13 @@ if [[ ! -d "venv" ]]; then
 fi
 ./venv/bin/pip install --upgrade pip
 ./venv/bin/pip install -r requirements.txt
+
+# Link project directory into python site-packages for clean module resolution
+SITE_PACKAGES=$(./venv/bin/python3 -c "import site; print(site.getsitepackages()[0])" 2>/dev/null || echo "")
+if [[ -n "${SITE_PACKAGES}" && -d "${SITE_PACKAGES}" ]]; then
+    echo "${INSTALL_DIR}" > "${SITE_PACKAGES}/vectis.pth"
+fi
+
 chown -R vps-agent:vps-agent "${INSTALL_DIR}/agent"
 
 echo -e "\n${BLUE}6. Building Frontend Production Assets (Node.js)...${NC}"
@@ -91,9 +103,12 @@ npm install --production=false
 npm run build
 
 # Standalone assets requirement: copy static and public folders into standalone build
+rm -rf .next/standalone/.next/static .next/standalone/public
 mkdir -p .next/standalone/.next
-cp -r .next/static .next/standalone/.next/static
-cp -r public .next/standalone/public
+cp -r .next/static .next/standalone/.next/
+if [[ -d "public" ]]; then
+    cp -r public .next/standalone/
+fi
 chown -R vps-agent:vps-agent "${INSTALL_DIR}/frontend"
 
 echo -e "\n${BLUE}7. Generating Environment Configuration Files...${NC}"
@@ -151,6 +166,10 @@ echo -e "\n${BLUE}9. Installing & Starting Systemd Services...${NC}"
 cp "${INSTALL_DIR}/deployment/systemd/vps-agent.service" /etc/systemd/system/
 cp "${INSTALL_DIR}/deployment/systemd/vps-frontend.service" /etc/systemd/system/
 
+if [[ "${AGENT_PORT}" != "8000" ]]; then
+    sed -i "s|--port 8000|--port ${AGENT_PORT}|g" /etc/systemd/system/vps-agent.service
+fi
+
 systemctl daemon-reload
 systemctl enable vps-agent.service
 systemctl enable vps-frontend.service
@@ -162,7 +181,7 @@ echo -e "\n${BLUE}10. Configuring Nginx Reverse Proxy...${NC}"
 if [[ -d "/etc/nginx/sites-available" ]]; then
     # Generate configured Nginx conf with active ports
     sed \
-        -e "s|http://127.0.0.1:3000|http://127.0.0.1:${FRONTEND_PORT}|g" \
+        -e "s|http://127.0.0.1:300[01]|http://127.0.0.1:${FRONTEND_PORT}|g" \
         -e "s|http://127.0.0.1:8000|http://127.0.0.1:${AGENT_PORT}|g" \
         "${INSTALL_DIR}/deployment/nginx/vps-control-center.conf" > /etc/nginx/sites-available/vps-control-center.conf
 
