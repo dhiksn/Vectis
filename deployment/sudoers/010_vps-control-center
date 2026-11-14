@@ -1,0 +1,5 @@
+# Sudoers rule for VPS Control Center non-root agent user
+# Place in: /etc/sudoers.d/010_vps-control-center
+# Permissions: 0440
+
+vps-agent ALL=(ALL) NOPASSWD: /usr/local/bin/vps-service-helper *

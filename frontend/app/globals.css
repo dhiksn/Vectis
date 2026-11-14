@@ -1,0 +1,273 @@
+/* Hallmark · shape: workbench · genre: modern-minimal · theme: Cobalt (by request) · job: manage
+ * hero: stage · nav: edge-aligned · footer: compact · imagery: none · signature: live-ascii-field
+ * axes: dark/grotesk-sans/cool · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P_ H_ E_ S_ R_ V_ · weakest: C, enforced strict cobalt token hierarchy */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    --space-3xs: 2px;
+    --space-2xs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    --space-2xl: 64px;
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-micro: 120ms;
+    --dur-short: 220ms;
+
+    --color-error: oklch(58% 0.22 25);
+    --color-success: oklch(62% 0.16 150);
+
+    /* Light mode tokens */
+    --color-paper-light: oklch(98.6% 0.005 250);
+    --color-paper-2-light: oklch(96.2% 0.008 252);
+    --color-paper-3-light: oklch(93% 0.011 252);
+    --color-ink-light: oklch(21% 0.028 262);
+    --color-ink-2-light: oklch(36% 0.022 260);
+    --color-muted-light: oklch(50% 0.018 258);
+    --color-rule-light: oklch(90% 0.009 252);
+    --color-rule-2-light: oklch(83% 0.012 252);
+    --color-graphite-light: oklch(21% 0.024 262);
+    --color-graphite-2-light: oklch(26.5% 0.026 262);
+    --color-graphite-ink-light: oklch(93% 0.010 250);
+    --color-graphite-muted-light: oklch(69% 0.022 256);
+    --color-accent-light: oklch(52% 0.19 258);
+    --color-accent-2-light: oklch(76% 0.13 254);
+    --color-accent-wash-light: oklch(95% 0.028 256);
+    --color-accent-ink-light: oklch(98.6% 0.005 250);
+    --color-accent-edge-light: oklch(39% 0.16 260);
+    --color-key-face-light: oklch(99.4% 0.003 250);
+    --color-key-edge-light: oklch(80% 0.016 254);
+
+    /* Dark mode tokens */
+    --color-paper-dark: oklch(14% 0.012 255);
+    --color-paper-2-dark: oklch(17.5% 0.014 256);
+    --color-paper-3-dark: oklch(21% 0.016 256);
+    --color-ink-dark: oklch(94% 0.008 250);
+    --color-ink-2-dark: oklch(76% 0.015 252);
+    --color-muted-dark: oklch(62% 0.018 254);
+    --color-rule-dark: oklch(26% 0.015 255);
+    --color-rule-2-dark: oklch(33% 0.018 255);
+    --color-graphite-dark: oklch(16% 0.015 255);
+    --color-graphite-2-dark: oklch(20% 0.018 255);
+    --color-graphite-ink-dark: oklch(93% 0.010 250);
+    --color-graphite-muted-dark: oklch(65% 0.020 255);
+    --color-accent-dark: oklch(58% 0.16 258);
+    --color-accent-2-dark: oklch(76% 0.13 254);
+    --color-accent-wash-dark: oklch(22% 0.04 258);
+    --color-accent-ink-dark: oklch(98.6% 0.005 250);
+    --color-accent-edge-dark: oklch(42% 0.16 260);
+    --color-key-face-dark: oklch(20% 0.015 255);
+    --color-key-edge-dark: oklch(12% 0.012 255);
+
+    /* Active mappings (defaults to dark for Cobalt dashboard) */
+    --color-paper: var(--color-paper-dark);
+    --color-paper-2: var(--color-paper-2-dark);
+    --color-paper-3: var(--color-paper-3-dark);
+    --color-ink: var(--color-ink-dark);
+    --color-ink-2: var(--color-ink-2-dark);
+    --color-muted: var(--color-muted-dark);
+    --color-rule: var(--color-rule-dark);
+    --color-rule-2: var(--color-rule-2-dark);
+    --color-graphite: var(--color-graphite-dark);
+    --color-graphite-2: var(--color-graphite-2-dark);
+    --color-graphite-ink: var(--color-graphite-ink-dark);
+    --color-graphite-muted: var(--color-graphite-muted-dark);
+    --color-accent: var(--color-accent-dark);
+    --color-accent-2: var(--color-accent-2-dark);
+    --color-accent-wash: var(--color-accent-wash-dark);
+    --color-accent-ink: var(--color-accent-ink-dark);
+    --color-accent-edge: var(--color-accent-edge-dark);
+    --color-key-face: var(--color-key-face-dark);
+    --color-key-edge: var(--color-key-edge-dark);
+
+    --font-display: "Familjen Grotesk", system-ui, -apple-system, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --font-outlier: "JetBrains Mono", ui-monospace, monospace;
+
+    --radius-card: 6px;
+    --radius-input: 4px;
+    --radius-pill: 999px;
+    --cut: 8px;
+    --cut-l: 14px;
+    --rule-hair: 1px;
+
+    --shadow-card: none;
+    --shadow-key: 0 3px 0 0 var(--color-key-edge), 0 3px 5px -2px var(--color-rule-2), inset 0 1px 0 var(--color-rule);
+    --shadow-key-accent: 0 3px 0 0 var(--color-accent-edge), 0 4px 6px -2px var(--color-rule-2), inset 0 1px 0 var(--color-accent-wash);
+    --shadow-key-press: inset 0 1px 2px var(--color-rule-2);
+    --tracking-display: -0.025em;
+  }
+
+  [data-mode="light"] {
+    --color-paper: var(--color-paper-light);
+    --color-paper-2: var(--color-paper-2-light);
+    --color-paper-3: var(--color-paper-3-light);
+    --color-ink: var(--color-ink-light);
+    --color-ink-2: var(--color-ink-2-light);
+    --color-muted: var(--color-muted-light);
+    --color-rule: var(--color-rule-light);
+    --color-rule-2: var(--color-rule-2-light);
+    --color-graphite: var(--color-graphite-light);
+    --color-graphite-2: var(--color-graphite-2-light);
+    --color-graphite-ink: var(--color-graphite-ink-light);
+    --color-graphite-muted: var(--color-graphite-muted-light);
+    --color-accent: var(--color-accent-light);
+    --color-accent-2: var(--color-accent-2-light);
+    --color-accent-wash: var(--color-accent-wash-light);
+    --color-accent-ink: var(--color-accent-ink-light);
+    --color-accent-edge: var(--color-accent-edge-light);
+    --color-key-face: var(--color-key-face-light);
+    --color-key-edge: var(--color-key-edge-light);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scrollbar-color: var(--color-muted) var(--color-paper);
+    overflow-x: clip;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: clip;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 26%, transparent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Keycap Controls per Hallmark Cobalt Spec */
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-input);
+  padding: 0 var(--space-md);
+  height: 38px;
+  background: var(--color-key-face);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-key);
+  transition: transform var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
+  cursor: pointer;
+  user-select: none;
+}
+
+.key:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-key-press);
+}
+
+.key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.key--sm {
+  height: 30px;
+  padding: 0 var(--space-sm);
+  font-size: 0.8125rem;
+}
+
+.key--lg {
+  height: 44px;
+  padding: 0 var(--space-lg);
+  font-size: 0.9375rem;
+}
+
+.key--primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent-edge);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-key-accent);
+}
+
+.key--danger {
+  background: var(--color-error);
+  border-color: color-mix(in oklab, var(--color-error) 80%, black);
+  color: var(--color-accent-ink);
+  box-shadow: 0 3px 0 0 color-mix(in oklab, var(--color-error) 70%, black);
+}
+
+/* Cut Panel Surface */
+.cut {
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  position: relative;
+}
+
+@supports (corner-shape: bevel) {
+  .cut-bevel {
+    border-radius: var(--cut) 3px var(--cut) 3px;
+    corner-shape: bevel round bevel round;
+  }
+}
+
+.graphite {
+  background: var(--color-graphite);
+  color: var(--color-graphite-ink);
+  border: var(--rule-hair) solid var(--color-rule);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ASCII Grid Background Texture */
+.cobalt-ascii-grid {
+  background-image: radial-gradient(circle, var(--color-rule) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

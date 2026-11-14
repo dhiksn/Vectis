@@ -1,0 +1,17 @@
+[Unit]
+Description=VPS Control Center - Next.js Production Frontend
+After=network.target vps-agent.service
+
+[Service]
+Type=simple
+User=vps-agent
+Group=vps-agent
+WorkingDirectory=/opt/vps-control-center/frontend
+EnvironmentFile=-/etc/vps-control-center/frontend.env
+ExecStart=/usr/bin/env node .next/standalone/server.js
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,24 @@
+[Unit]
+Description=VPS Control Center - Backend Telemetry and Management Agent
+After=network.target systemd-journald.service
+
+[Service]
+Type=simple
+User=vps-agent
+Group=vps-agent
+WorkingDirectory=/opt/vps-control-center/agent
+EnvironmentFile=-/etc/vps-control-center/agent.env
+ExecStart=/opt/vps-control-center/agent/venv/bin/uvicorn agent.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/vps-control-center/agent /var/log/vps-control-center
+PrivateTmp=true
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target

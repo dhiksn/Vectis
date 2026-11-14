@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: ./agent/Dockerfile
+    container_name: vps-agent
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - AGENT_HOST=0.0.0.0
+      - AGENT_PORT=8000
+      - AGENT_API_KEY=${AGENT_API_KEY:-vps-secret-key}
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - METRICS_INTERVAL=3
+      - SERVICE_ALLOWLIST=nginx,ssh,sshd,docker,cron,ufw,mysql,postgresql,ollama,redis,systemd-journald
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-$$2b$$12$$OWde5hNSe2FmLm9rcBhfgeV5AIOZzG0hjZEoxqCHRqCD9dCK7y0Ka}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-default-insecure-secret-change-in-prod}
+      - DATA_RETENTION_HOURS=48
+    volumes:
+      - agent_data:/opt/vps-control-center/agent/data
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    network_mode: "host"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vps-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+    depends_on:
+      - agent
+
+volumes:
+  agent_data:
